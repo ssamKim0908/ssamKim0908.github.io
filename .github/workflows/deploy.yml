@@ -19,19 +19,36 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MDBOOK_VERSION: 0.5.2
+      WASM_PACK_VERSION: 0.13.1
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install Rust (wasm32 target)
+        run: rustup target add wasm32-unknown-unknown
 
       - name: Cache cargo bin
         id: cache-cargo
         uses: actions/cache@v4
         with:
           path: ~/.cargo/bin
-          key: mdbook-${{ env.MDBOOK_VERSION }}
+          key: tools-mdbook-${{ env.MDBOOK_VERSION }}-wasmpack-${{ env.WASM_PACK_VERSION }}
 
       - name: Install mdBook
         if: steps.cache-cargo.outputs.cache-hit != 'true'
         run: cargo install mdbook --version ${{ env.MDBOOK_VERSION }} --locked
+
+      - name: Install wasm-pack
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
+        run: cargo install wasm-pack --version ${{ env.WASM_PACK_VERSION }} --locked
+
+      - name: Cache renderer build
+        uses: actions/cache@v4
+        with:
+          path: renderer/target
+          key: renderer-target-${{ hashFiles('renderer/Cargo.toml', 'renderer/src/**') }}
+
+      - name: Build renderer (wasm)
+        run: wasm-pack build renderer --release --target web --out-dir ../src/wasm --out-name renderer
 
       - name: Build book
         run: mdbook build

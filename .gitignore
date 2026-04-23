@@ -3,3 +3,5 @@ target/
 *.swp
 .DS_Store
 .claude/
+renderer/Cargo.lock
+src/wasm/
