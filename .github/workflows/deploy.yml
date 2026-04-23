@@ -1,0 +1,53 @@
+name: Deploy mdBook
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      MDBOOK_VERSION: 0.5.2
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache cargo bin
+        id: cache-cargo
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: mdbook-${{ env.MDBOOK_VERSION }}
+
+      - name: Install mdBook
+        if: steps.cache-cargo.outputs.cache-hit != 'true'
+        run: cargo install mdbook --version ${{ env.MDBOOK_VERSION }} --locked
+
+      - name: Build book
+        run: mdbook build
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./book
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

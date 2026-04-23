@@ -1,0 +1,18 @@
+[book]
+title = "자료구조 학습"
+authors = ["ssamKim0908"]
+language = "ko"
+src = "src"
+
+[output.html]
+default-theme = "light"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/ssamKim0908/ssamKim0908.github.io"
+edit-url-template = "https://github.com/ssamKim0908/ssamKim0908.github.io/edit/main/{path}"
+
+[output.html.fold]
+enable = true
+level = 1
+
+[output.html.playground]
+editable = false

@@ -1,0 +1,5 @@
+book/
+target/
+*.swp
+.DS_Store
+.claude/
